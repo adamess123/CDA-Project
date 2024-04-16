@@ -7,43 +7,54 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
     switch(ALUControl) {
         // A + B case
-        case 0x0:
-        *ALUresult = A + B;
-        break;
+        case '0':
+            *ALUresult = A + B;
+            break;
 
         // A - B case
-        case 0x1:
-        *ALUresult = A - B;
-        break;
+        case '1':
+            *ALUresult = A - B;
+            break;
 
-        // Z = 1 if A less than B, otherwise z = 0  
-        *ALUresult = ((int)A < (int)B) ? 1 : 0; 
-        break;
+        // signed
+        case '2':
+            if ((signed) A < (signed) B) {
+                *ALUresult = 1;
+            }
+            else {
+                *ALUresult = 0;
+            }
+            break;
 
         // Z = 1 if A less than B, otherwise z = 0 - A and B unsigned int
-        case 0x3:
-        *ALUresult = (A < B) ? 1 : 0;
-        break;
+        case '3':
+            if (A < B) {
+                *ALUresult = 1;
+            }
+            else {
+                *ALUresult = 0;
+            }
+            break;
 
         // Z and B case
-        case 0x4:
-        *ALUresult = A & B;
-        break;
+        case '4':
+            *ALUresult = A & B;
+            break;
 
         // Z or B case
-        case 0x5:
-        *ALUresult = A | B;
-        break;
+        case '5':
+            *ALUresult = A | B;
+            break;
 
         // Z is shifted left 16 bits
-        case 0x6:
-        *ALUresult = B << 16;
-        break;
+        case '6':
+            *ALUresult = B << 16;
+            break;
 
         // Z = not a
-        case 0x7:
-        *ALUresult = -A;
-        break;
+        case '7':
+            *ALUresult = -A;
+            break;
     }
     // if alu result = 0 set to 1, otherwise 0
     if (*ALUresult == 0) {
@@ -56,16 +67,11 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 
 /* instruction fetch */
 /* 10 Points */
-// memory is byte addressed 
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
     if (PC % 4 == 0) {
         *instruction = Mem[ PC >> 2];
         return 0;
-    // * PC is the index of the Mem[], where the address is. 
-    // But to access it we shift right by 2.
-    // * Mem[PC >> 2] is the decimal value of the instruction 
-    // that was in Hex in the file.
     }
 
     return 1;
@@ -77,15 +83,19 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
-    /* * Information:
-     *  op,         instruction [31-26]
-     *  r1,         instruction [25-21]
-     *  r2,         instruction [20-16]
-     *  r3,         instruction [15-11]
-     *  funct,      instruction [5-0]
-     *  offset,     instruction [15-0]
-     *  jsec;       instruction [25-0]
-     */ 
+    *op = instruction >> 26;
+    // r1 - instruction 31 - 26
+    // r2 instruction 20-16
+    // r3 instruction 15-11
+    *r1 = instruction >> 21 & 0x1F;
+    *r2 = instruction >> 16 & 0x1F;
+    *r3 = instruction >> 11 & 0x1F;
+
+    *funct = instruction & 0x3F;
+    *jsec = instruction & 0x3FFFFFF;
+    *offset = instruction & 0xFFFF;
+
+
 }
 
 
