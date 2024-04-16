@@ -1,6 +1,6 @@
 #include "spimcore.h"
 
-
+// Naziat C.
 /* ALU */
 /* 10 Points */
 void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
@@ -56,13 +56,19 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 
 /* instruction fetch */
 /* 10 Points */
+// memory is byte addressed 
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
-    if (PC % 4 != 0) {
-        return 1;
+    if (PC % 4 == 0) {
+        *instruction = Mem[ PC >> 2];
+        return 0;
+    // * PC is the index of the Mem[], where the address is. 
+    // But to access it we shift right by 2.
+    // * Mem[PC >> 2] is the decimal value of the instruction 
+    // that was in Hex in the file.
     }
-    *instruction = Mem[ PC >> 2];
-    return 0;
+
+    return 1;
 
 }
 
@@ -71,7 +77,15 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
-
+    /* * Information:
+     *  op,         instruction [31-26]
+     *  r1,         instruction [25-21]
+     *  r2,         instruction [20-16]
+     *  r3,         instruction [15-11]
+     *  funct,      instruction [5-0]
+     *  offset,     instruction [15-0]
+     *  jsec;       instruction [25-0]
+     */ 
 }
 
 
