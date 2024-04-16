@@ -5,13 +5,64 @@
 /* 10 Points */
 void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
+    switch(ALUControl) {
+        // A + B case
+        case 0x0:
+        *ALUresult = A + B;
+        break;
 
+        // A - B case
+        case 0x1:
+        *ALUresult = A - B;
+        break;
+
+        // Z = 1 if A less than B, otherwise z = 0  
+        *ALUresult = ((int)A < (int)B) ? 1 : 0; 
+        break;
+
+        // Z = 1 if A less than B, otherwise z = 0 - A and B unsigned int
+        case 0x3:
+        *ALUresult = (A < B) ? 1 : 0;
+        break;
+
+        // Z and B case
+        case 0x4:
+        *ALUresult = A & B;
+        break;
+
+        // Z or B case
+        case 0x5:
+        *ALUresult = A | B;
+        break;
+
+        // Z is shifted left 16 bits
+        case 0x6:
+        *ALUresult = B << 16;
+        break;
+
+        // Z = not a
+        case 0x7:
+        *ALUresult = -A;
+        break;
+    }
+    // if alu result = 0 set to 1, otherwise 0
+    if (*ALUresult == 0) {
+        *Zero = 1;
+    } 
+    else {
+        *Zero = 0;
+    }
 }
 
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
+    if (PC % 4 != 0) {
+        return 1;
+    }
+    *instruction = Mem[ PC >> 2];
+    return 0;
 
 }
 
