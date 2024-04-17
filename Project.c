@@ -233,9 +233,17 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 
 /* Sign Extend */
 /* 10 Points */
+//Grace Rudie
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
-
+    //offest is a 16-bits therefore to check most significant bit use right shift to see if it is one(meaning negative)
+    if(offset >> 15 == 1){
+        *extended_value = offset | 0xfffff0000;
+    }
+    //if MSB is not 1, then sign extension not needed(positive)
+    else{
+        *extended_value = offset & 0x0000ffff;
+    }
 }
 
 /* ALU operations */
