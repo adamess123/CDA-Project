@@ -248,9 +248,60 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 
 /* ALU operations */
 /* 10 Points */
-int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero)
-{
+// Grace Rudie
+int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero){
+    
+    unsigned temp;              //stores the results so that the pointer does not change until the end of the function
+    unsigned ALUControl;        //used to store what will be based to the ALU function call and will be changed based on the values of ALUOp and funct
 
+    //determine based on ALUSrc if data2 or extend_value should be used
+    if(ALUSrc == 0){
+        temp = data2;
+    }else{
+        temp = extended_value;
+    }
+
+    //now set operations based on ALUOp
+    //for R-Type
+    if(ALUOp == 7){
+        //for add instruction
+        if(funct == 0x20){
+            ALUControl = 0;
+        }
+        //for sub instruction
+        else if(funct == 0x22){
+            ALUControl = 1;
+        }
+        //for slt(signed)
+        else if(funct == 0x2a){
+            ALUControl = 2;
+        }
+        //for slt(unsigned)
+        else if(funct == 0x2b){
+            ALUControl = 3;
+        }
+        //for AND instruction
+        else if(funct == 0x24){
+            ALUControl = 4;
+        }
+        //for OR instruction
+        else if(funct == 0x25){
+            ALUControl = 5;
+        }
+        //for invalid funct value so therefore halt condition
+        else{
+            return 1;
+        }
+    }
+    //for non R-Type instructions 
+    else{
+        ALUControl = ALUOp;
+    }
+
+    //Now to perform the ALU operations 
+    ALU(data1, temp, ALUControl, ALUresult, Zero);
+
+    return 0;           //because no halt condition occcured 
 }
 
 /* Read / Write Memory */
