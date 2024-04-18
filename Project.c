@@ -103,121 +103,138 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 /* instruction decode */
 /* 15 Points */
 //Grace Rudie
-int instruction_decode(unsigned op,struct_controls *controls)
-{
-    //use controls struct to initalize the controls to 2 for the "dont care" situtation that will be left if needed
-    controls->RegDst = 2;
-    controls->Jump = 2;
-    controls->Branch = 2;
-    controls->MemRead = 2;
-    controls->MemtoReg = 2;
-    controls->MemWrite = 2;
-    controls->ALUSrc = 2;
-    controls->RegWrite = 2;
-    //not set to 2 because 2 has a different value that does not represent "don't care"
-    controls->ALUOp = 0;
-
+int instruction_decode(unsigned op, struct_controls *controls) {
     //check the opcode to see which type of instruction
     //R-Type Instruction (for add, sub, and, or, slt) 0000 0000
-    if(op == 0x0){
+    if (op == 0) {
         //enable or indicate selected path with 1 
-        controls->RegDst = 1;
-        controls->RegWrite = 1;
+        controls->RegDst = '1';
+        controls->RegWrite = '1';
         //Disable following for R-Type
-        controls->MemRead = 0;
-        controls->MemWrite = 0;
-        controls->ALUSrc = 0;
+        controls->MemRead = '0';
+        controls->MemWrite = '0';
+        controls->MemtoReg = '0';
+        controls->ALUSrc = '0';
+        controls->Jump = '0';
+        controls->Branch = '0';
         //7 is binary value of 111 which is the instruction for R-type
-        controls->ALUOp = 7;
+        controls->ALUOp = '7'; 
     }
-
     //Next conditions are checking for I-type instructions
     //if the op value is addi 0000 1000
-    else if(op == 0x8){
-        controls->RegWrite = 1;
-        controls->ALUSrc = 1;
+    else if (op == 8) { 
+        controls->RegWrite = '1';
+        controls->ALUSrc = '1';
         //disable following for addi
-        controls->MemRead = 0;
-        controls->MemWrite = 0;
+        controls->MemRead = '0';
+        controls->MemtoReg = '0';
+        controls->MemWrite = '0';
+        controls->RegDst = '0';
+        controls->Jump = '0';
+        controls->Branch = '0';
+        //0 is binary of 000 which is instruction for andi
+        controls->ALUOp = '0'; 
     }
     //if the op value is lw 0010 0011
-    else if(op == 0x23){
-        controls->RegWrite = 1;
-        controls->MemRead = 1;
-        controls->MemtoReg = 1;
-        controls->ALUSrc = 1;
+    else if (op == 35) { 
+        controls->RegWrite = '1';
+        controls->MemRead = '1';
+        controls->MemtoReg = '1';
+        controls->ALUSrc = '1';
         //disabel following for lw
-        controls->MemWrite = 0;
+        controls->MemWrite = '0';
+        controls->RegDst = '0';
+        controls->Jump = '0';
+        controls->Branch = '0';
+        //0 for addition
+        controls->ALUOp = '0'; 
     }
-    //if the op value is sw 101011
-    else if(op == 0x2b){
-        controls->MemWrite = 1;
-        controls->ALUSrc = 1;
+      //if the op value is sw 101011
+    else if (op == 43) { 
+        controls->MemWrite = '1';
+        controls->ALUSrc = '1';
         //disable for sw
-        controls->MemRead = 0;
-        controls->RegWrite = 0;
+        controls->MemRead = '0';
+        controls->RegWrite = '0';
+        controls->Jump = '0';
+        controls->Branch = '0';
+        //0 in binary for addition
+        controls->ALUOp = '0';
+        // Don't care values
+        controls->RegDst = '2';
+        controls->MemtoReg = '2';
     }
     //if the op value is for lui 0000 1111
-    else if(op == 0xf){
-        controls->RegWrite = 1;
-        controls->ALUSrc = 1;
+    else if (op == 15) { 
+        controls->RegWrite = '1';
+        controls->ALUSrc = '1';
         //disable following for lui
-        controls->MemRead = 0;
-        controls->MemWrite = 0;
-        controls->ALUSrc = 0;
+        controls->MemRead = '0';
+        controls->MemWrite = '0';
+        controls->ALUSrc = '0';
+        controls->Branch = '0';
+        controls->Jump = '0';
+        controls->MemtoReg = '0';
         //6 binary value is 110 used for shift left 
-        controls->ALUOp = 6;
+        controls->ALUOp = '6'; 
     }
     //if op value is beq 0000 0100
-    else if(op == 0x4){
-        controls->Branch = 1;
-        //disable following for beq
-        controls->MemRead = 0;
-        controls->MemWrite = 0;
-        controls->RegWrite = 0;
-        controls->ALUSrc = 0;
-        //1 binary value is 001 used for subtractoin in the branching
-        controls->ALUOp = 1;
+    else if (op == 4) {
+        controls->Branch = '1';
+        controls->MemRead = '0';
+        controls->MemWrite = '0';
+        controls->RegWrite = '0';
+        controls->ALUSrc = '0';
+        controls->Jump = '0';
+        //1 in binary for subtraction
+        controls->ALUOp = '1'; 
+        // Don't care values
+        controls->RegDst = '0';
+        controls->MemtoReg = '0';
     }
-    //if op value is slti 0000 1010
-    else if(op == 0xa){
-        controls->RegWrite = 1;
-        controls->ALUSrc = 1;
-        //disable for slti
-        controls->MemRead = 0;
-        controls->MemWrite = 0;
-        //2 binary value is 010 used for set less than 
-        controls->ALUOp = 2;
+     //if op value is slti 0000 1010 
+    else if (op == 10) { 
+        controls->RegWrite = '1';
+        controls->ALUSrc = '1';
+         //disable for slti
+        controls->MemRead = '0';
+        controls->MemWrite = '0';
+        controls->Jump = '0';
+        controls->Branch = '0';
+        controls->MemtoReg = '0';
+        controls->RegDst = '0';
+         //2 binary value is 010 used for set less than
+        controls->ALUOp = '2'; 
     }
     //if op value is sltiu 0000 1011
-    else if(op == 0xb){
-        controls->RegWrite = 1;
-        controls->ALUSrc = 1;
-        //disable for sltiu
-        controls->MemRead = 0;
-        controls->MemWrite = 0;
+    else if (op == 11) { 
+        controls->RegWrite = '1';
+        controls->ALUSrc = '1';
+         //disable for sltiu
+        controls->MemRead = '0';
+        controls->MemWrite = '0';
+        controls->RegDst = '0';
+        controls->Jump = '0';
+        controls->Branch = '0';
+        controls->MemtoReg = '0';
         //3 binary value is 011 used for set less than unsighed
-        controls->ALUOp = 3;
+        controls->ALUOp = '3'; 
     }
-
-    //J-Type Instructions
-    //if op value is j 0000 0010
-    else if(op == 0x2){
-        controls->Jump = 1;
-        //disable for j
-        controls->MemRead = 0;
-        controls->MemWrite = 0;
-        controls->RegWrite = 0;
-        controls->ALUSrc = 1;
+    // J-Type Instructions
+    else if (op == 2) { 
+        controls->Jump = '1';
+        controls->ALUSrc = '1';
+         //disable for j
+        controls->MemRead = '0';
+        controls->MemWrite = '0';
+        controls->RegWrite = '0';
     }
-
     //if an illegal instruction is encountered halt
-    else{
-        return 1;
+    else {
+        return 1; 
     }
-
     //if one of the conditions was read then no halt needed 
-    return 0;
+    return 0; 
 }
 
 /* Read Register */
