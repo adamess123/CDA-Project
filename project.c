@@ -267,48 +267,52 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
     if(ALUSrc == 1)
         data2 = extended_value;
 
-
     //now set operations based on ALUOp
     //for R-Type
     if(ALUOp == 7){
         //for add instruction
-        if(funct == 0x20){
+        if(funct == 0x20)
             ALUOp = 0;
-        }
+
         //for sub instruction
-        else if(funct == 0x22){
+        else if(funct == 0x22)
             ALUOp = 1;
-        }
+
         //for slt(signed)
-        else if(funct == 0x2a){
+        else if(funct == 0x2a)
             ALUOp = 2;
-        }
+
         //for slt(unsigned)
-        else if(funct == 0x2b){
+        else if(funct == 0x2b)
             ALUOp = 3;
-        }
+
         //for AND instruction
-        else if(funct == 0x24){
+        else if(funct == 0x24)
             ALUOp = 4;
-        }
+
         //for OR instruction
-        else if(funct == 0x25){
+        else if(funct == 0x25)
             ALUOp = 5;
-        }
+
+        //shift by 16
+        else if(funct == 0x4)
+            ALUOp = 6;
+
+        //Z = ~A
+        else if(funct == 0x0)
+            ALUOp = 7;
+
         //for invalid funct value so therefore halt condition
-        else{
+        else
             return 1;
-        }
+
     }
     //for non R-Type instructions
-    else{
-        ALUOp = ALUOp;
-    }
 
     //Now to perform the ALU operations
     ALU(data1, data2, ALUOp, ALUresult, Zero);
 
-    return 0;           //because no halt condition occcured
+    return 0;
 }
 
 /* Read / Write Memory */
@@ -337,23 +341,25 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 // Adam Essaydi
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
-    if(RegWrite == 1){
-        // If info from memory and regdst of 0, then set reg of r2 to memdata
-        if (MemtoReg == 1 && RegDst == 0)
-            Reg[r2] = memdata;
+    if (RegWrite == 1) {
+        // handle register writes
+        if (MemtoReg == 1) {
+            if (RegDst == 0)
+                Reg[r2] = memdata;  // write memory data to reg r2 if RegDst is 0
 
-        // if info from memory and regdst of 1, set reg of r3 to memdata
-        else if(MemtoReg == 1 && RegDst == 1)
-            Reg[r3] = memdata;
+            else if (RegDst == 1)
+                Reg[r3] = memdata;  // write memory data to reg r3 if RegDst is 1
+        }
 
-        // if info from reg and regdst of 1, set r3 to aluresult (r-type)
-        else if (MemtoReg == 0 && RegDst == 1)
-            Reg[r3] = ALUresult;
+        else if (MemtoReg == 0) {
+            if (RegDst == 0)
+                Reg[r2] = ALUresult;  // write ALUresult to reg r2 if RegDst is 0 (I-type)
 
-        // if info from reg and regdst of 0, set r2 to aluresult (i-type)
-        else if (MemtoReg == 0 && RegDst == 0)
-            Reg[r2] = ALUresult;
+            else if (RegDst == 1)
+                Reg[r3] = ALUresult;  // write ALUresult to reg r3 if RegDst is 1 (R-type)
+        }
     }
+
 }
 
 /* PC update */
