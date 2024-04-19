@@ -3,21 +3,21 @@
 // Naziat C.
 /* ALU */
 /* 10 Points */
-void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
+void ALU(unsigned A,unsigned B,char ALUOp,unsigned *ALUresult,char *Zero)
 {
-    switch(ALUControl) {
+    switch(ALUOp) {
         // A + B case
-        case '0':
+        case 0:
             *ALUresult = A + B;
             break;
 
         // A - B case
-        case '1':
+        case 1:
             *ALUresult = A - B;
             break;
 
         // signed
-        case '2':
+        case 2:
             if ((signed) A < (signed) B) {
                 *ALUresult = 1;
             }
@@ -27,7 +27,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
             break;
 
         // Z = 1 if A less than B, otherwise z = 0 - A and B unsigned int
-        case '3':
+        case 3:
             if (A < B) {
                 *ALUresult = 1;
             }
@@ -37,23 +37,23 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
             break;
 
         // Z and B case
-        case '4':
+        case 4:
             *ALUresult = A & B;
             break;
 
         // Z or B case
-        case '5':
+        case 5:
             *ALUresult = A | B;
             break;
 
         // Z is shifted left 16 bits
-        case '6':
+        case 6:
             *ALUresult = B << 16;
             break;
 
         // Z = not a
-        case '7':
-            *ALUresult = -A;
+        case 7:
+            *ALUresult = ~A;
             break;
     }
     // if alu result = 0 set to 1, otherwise 0
@@ -70,7 +70,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
     if (PC % 4 == 0) {
-        *instruction = Mem[ PC >> 2];
+        *instruction = Mem[PC >> 2];
         return 0;
     }
 
@@ -87,15 +87,13 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
     // r1 - instruction 31 - 26
     // r2 instruction 20-16
     // r3 instruction 15-11
-    *r1 = instruction >> 21 & 0x1F;
-    *r2 = instruction >> 16 & 0x1F;
-    *r3 = instruction >> 11 & 0x1F;
+    *r1 = (instruction >> 21) & 0x1F;
+    *r2 = (instruction >> 16) & 0x1F;
+    *r3 = (instruction >> 11 )& 0x1F;
 
     *funct = instruction & 0x3F;
     *jsec = instruction & 0x3FFFFFF;
     *offset = instruction & 0xFFFF;
-
-
 }
 
 
@@ -104,137 +102,135 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 /* 15 Points */
 //Grace Rudie
 int instruction_decode(unsigned op, struct_controls *controls) {
-    //check the opcode to see which type of instruction
-    //R-Type Instruction (for add, sub, and, or, slt) 0000 0000
     if (op == 0) {
-        //enable or indicate selected path with 1 
-        controls->RegDst = '1';
-        controls->RegWrite = '1';
+        //enable or indicate selected path with 1
+        controls->RegDst = 1;
+        controls->RegWrite = 1;
         //Disable following for R-Type
-        controls->MemRead = '0';
-        controls->MemWrite = '0';
-        controls->MemtoReg = '0';
-        controls->ALUSrc = '0';
-        controls->Jump = '0';
-        controls->Branch = '0';
+        controls->MemRead = 0;
+        controls->MemWrite = 0;
+        controls->MemtoReg = 0;
+        controls->ALUSrc = 0;
+        controls->Jump = 0;
+        controls->Branch = 0;
         //7 is binary value of 111 which is the instruction for R-type
-        controls->ALUOp = '7'; 
+        controls->ALUOp = 7;
     }
     //Next conditions are checking for I-type instructions
     //if the op value is addi 0000 1000
-    else if (op == 8) { 
-        controls->RegWrite = '1';
-        controls->ALUSrc = '1';
+    else if (op == 8) {
+        controls->RegWrite = 1;
+        controls->ALUSrc = 1;
         //disable following for addi
-        controls->MemRead = '0';
-        controls->MemtoReg = '0';
-        controls->MemWrite = '0';
-        controls->RegDst = '0';
-        controls->Jump = '0';
-        controls->Branch = '0';
+        controls->MemRead = 0;
+        controls->MemtoReg = 0;
+        controls->MemWrite = 0;
+        controls->RegDst = 0;
+        controls->Jump = 0;
+        controls->Branch = 0;
         //0 is binary of 000 which is instruction for andi
-        controls->ALUOp = '0'; 
+        controls->ALUOp = 0;
     }
     //if the op value is lw 0010 0011
-    else if (op == 35) { 
-        controls->RegWrite = '1';
-        controls->MemRead = '1';
-        controls->MemtoReg = '1';
-        controls->ALUSrc = '1';
-        //disabel following for lw
-        controls->MemWrite = '0';
-        controls->RegDst = '0';
-        controls->Jump = '0';
-        controls->Branch = '0';
+    else if (op == 35) {
+        controls->RegWrite = 1;
+        controls->MemRead = 1;
+        controls->MemtoReg = 1;
+        controls->ALUSrc = 1;
+        //disable following for lw
+        controls->MemWrite = 0;
+        controls->RegDst = 0;
+        controls->Jump = 0;
+        controls->Branch = 0;
         //0 for addition
-        controls->ALUOp = '0'; 
+        controls->ALUOp = 0;
     }
-      //if the op value is sw 101011
-    else if (op == 43) { 
-        controls->MemWrite = '1';
-        controls->ALUSrc = '1';
+    //if the op value is sw 101011
+    else if (op == 43) {
+        controls->MemWrite = 1;
+        controls->ALUSrc = 1;
         //disable for sw
-        controls->MemRead = '0';
-        controls->RegWrite = '0';
-        controls->Jump = '0';
-        controls->Branch = '0';
+        controls->MemRead = 0;
+        controls->RegWrite = 0;
+        controls->Jump = 0;
+        controls->Branch = 0;
         //0 in binary for addition
-        controls->ALUOp = '0';
+        controls->ALUOp = 0;
         // Don't care values
-        controls->RegDst = '2';
-        controls->MemtoReg = '2';
+        controls->RegDst = 2;
+        controls->MemtoReg = 2;
     }
     //if the op value is for lui 0000 1111
-    else if (op == 15) { 
-        controls->RegWrite = '1';
-        controls->ALUSrc = '1';
+    else if (op == 15) {
+        controls->RegWrite = 1;
+        controls->ALUSrc = 1;
         //disable following for lui
-        controls->MemRead = '0';
-        controls->MemWrite = '0';
-        controls->ALUSrc = '0';
-        controls->Branch = '0';
-        controls->Jump = '0';
-        controls->MemtoReg = '0';
-        //6 binary value is 110 used for shift left 
-        controls->ALUOp = '6'; 
+        controls->MemRead = 0;
+        controls->MemWrite = 0;
+        controls->ALUSrc = 0;
+        controls->Branch = 0;
+        controls->Jump = 0;
+        controls->MemtoReg = 0;
+        //6 binary value is 110 used for shift left
+        controls->ALUOp = 6;
     }
     //if op value is beq 0000 0100
     else if (op == 4) {
-        controls->Branch = '1';
-        controls->MemRead = '0';
-        controls->MemWrite = '0';
-        controls->RegWrite = '0';
-        controls->ALUSrc = '0';
-        controls->Jump = '0';
+        controls->Branch = 1;
+        controls->MemRead = 0;
+        controls->MemWrite = 0;
+        controls->RegWrite = 0;
+        controls->ALUSrc = 0;
+        controls->Jump = 0;
         //1 in binary for subtraction
-        controls->ALUOp = '1'; 
+        controls->ALUOp = 1;
         // Don't care values
-        controls->RegDst = '0';
-        controls->MemtoReg = '0';
+        controls->RegDst = 0;
+        controls->MemtoReg = 0;
     }
-     //if op value is slti 0000 1010 
-    else if (op == 10) { 
-        controls->RegWrite = '1';
-        controls->ALUSrc = '1';
+     //if op value is slti 0000 1010
+    else if (op == 10) {
+        controls->RegWrite = 1;
+        controls->ALUSrc = 1;
          //disable for slti
-        controls->MemRead = '0';
-        controls->MemWrite = '0';
-        controls->Jump = '0';
-        controls->Branch = '0';
-        controls->MemtoReg = '0';
-        controls->RegDst = '0';
+        controls->MemRead = 0;
+        controls->MemWrite = 0;
+        controls->Jump = 0;
+        controls->Branch = 0;
+        controls->MemtoReg = 0;
+        controls->RegDst = 0;
          //2 binary value is 010 used for set less than
-        controls->ALUOp = '2'; 
+        controls->ALUOp = 2;
     }
     //if op value is sltiu 0000 1011
-    else if (op == 11) { 
-        controls->RegWrite = '1';
-        controls->ALUSrc = '1';
+    else if (op == 11) {
+        controls->RegWrite = 1;
+        controls->ALUSrc = 1;
          //disable for sltiu
-        controls->MemRead = '0';
-        controls->MemWrite = '0';
-        controls->RegDst = '0';
-        controls->Jump = '0';
-        controls->Branch = '0';
-        controls->MemtoReg = '0';
+        controls->MemRead = 0;
+        controls->MemWrite = 0;
+        controls->RegDst = 0;
+        controls->Jump = 0;
+        controls->Branch = 0;
+        controls->MemtoReg = 0;
         //3 binary value is 011 used for set less than unsighed
-        controls->ALUOp = '3'; 
+        controls->ALUOp = 3;
     }
     // J-Type Instructions
-    else if (op == 2) { 
-        controls->Jump = '1';
-        controls->ALUSrc = '1';
+    else if (op == 2) {
+        controls->Jump = 1;
+        controls->ALUSrc = 1;
          //disable for j
-        controls->MemRead = '0';
-        controls->MemWrite = '0';
-        controls->RegWrite = '0';
+        controls->MemRead = 0;
+        controls->MemWrite = 0;
+        controls->RegWrite = 0;
     }
     //if an illegal instruction is encountered halt
     else {
-        return 1; 
+        return 1;
     }
-    //if one of the conditions was read then no halt needed 
-    return 0; 
+    //if one of the conditions was read then no halt needed
+    return 0;
 }
 
 /* Read Register */
@@ -255,11 +251,11 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 {
     //offest is a 16-bits therefore to check most significant bit use right shift to see if it is one(meaning negative)
     if(offset >> 15 == 1){
-        *extended_value = offset | 0xfffff0000;
+        *extended_value = offset | 0xFFFFF0000;
     }
     //if MSB is not 1, then sign extension not needed(positive)
     else{
-        *extended_value = offset & 0x0000ffff;
+        *extended_value = offset & 0x0000FFFF;
     }
 }
 
@@ -267,58 +263,52 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 /* 10 Points */
 // Grace Rudie
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero){
-    
-    unsigned temp;              //stores the results so that the pointer does not change until the end of the function
-    unsigned ALUControl;        //used to store what will be based to the ALU function call and will be changed based on the values of ALUOp and funct
-
     //determine based on ALUSrc if data2 or extend_value should be used
-    if(ALUSrc == 0){
-        temp = data2;
-    }else{
-        temp = extended_value;
-    }
+    if(ALUSrc == 1)
+        data2 = extended_value;
+
 
     //now set operations based on ALUOp
     //for R-Type
     if(ALUOp == 7){
         //for add instruction
         if(funct == 0x20){
-            ALUControl = 0;
+            ALUOp = 0;
         }
         //for sub instruction
         else if(funct == 0x22){
-            ALUControl = 1;
+            ALUOp = 1;
         }
         //for slt(signed)
         else if(funct == 0x2a){
-            ALUControl = 2;
+            ALUOp = 2;
         }
         //for slt(unsigned)
         else if(funct == 0x2b){
-            ALUControl = 3;
+            ALUOp = 3;
         }
         //for AND instruction
         else if(funct == 0x24){
-            ALUControl = 4;
+            ALUOp = 4;
         }
         //for OR instruction
         else if(funct == 0x25){
-            ALUControl = 5;
+            ALUOp = 5;
         }
         //for invalid funct value so therefore halt condition
         else{
             return 1;
         }
     }
-    //for non R-Type instructions 
+    //for non R-Type instructions
     else{
-        ALUControl = ALUOp;
+        ALUOp = ALUOp;
     }
 
-    //Now to perform the ALU operations 
-    ALU(data1, temp, ALUControl, ALUresult, Zero);
+    //Now to perform the ALU operations
+    ALU(data1, data2, ALUOp, ALUresult, Zero);
 
-    return 0;           //because no halt condition occcured 
+    return 0;           //because no halt condition occcured
 }
 
 /* Read / Write Memory */
