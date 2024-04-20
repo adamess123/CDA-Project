@@ -2,7 +2,6 @@
     Naziat Chowdhury
    Grace Rudie
    Adam Essaydi
-   
    CDA3103 Project */ 
 
 #include "spimcore.h"
@@ -11,13 +10,12 @@
 /* ALU - simulates the operations of an ALU 
     * implements operations based on A and B parameters in accordance to ALU control in the given table
     * outputs result to ALUresult */
-void ALU(unsigned A,unsigned B,char ALUOp,unsigned *ALUresult,char *Zero)
+void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {   // switch-case handles operations based on ALUOp
-    switch(ALUOp) {
+    switch(ALUControl) {
         case 0: // A + B
             *ALUresult = A + B;
             break;
-
         case 1: // A - B 
             *ALUresult = A - B;
             break;
