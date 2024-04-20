@@ -107,7 +107,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         controls->Branch = 0;
         //7 is binary value of 111 which is the instruction for R-type
         controls->ALUOp = 7;
-    }
+    } 
     //Next conditions are checking for I-type instructions
     //if the op value is addi 0000 1000
     else if (op == 8) {
@@ -115,15 +115,15 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         controls->ALUSrc = 1;
         //disable following for addi
         controls->MemRead = 0;
-        controls->MemtoReg = 0;
         controls->MemWrite = 0;
+        controls->MemtoReg = 0;
         controls->RegDst = 0;
         controls->Jump = 0;
         controls->Branch = 0;
         //0 is binary of 000 which is instruction for andi
         controls->ALUOp = 0;
-    }
-    //if the op value is lw 0010 0011
+    } 
+     //if the op value is lw 0010 0011
     else if (op == 35) {
         controls->RegWrite = 1;
         controls->MemRead = 1;
@@ -134,9 +134,9 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         controls->RegDst = 0;
         controls->Jump = 0;
         controls->Branch = 0;
-        //0 for addition
+        //addition
         controls->ALUOp = 0;
-    }
+    } 
     //if the op value is sw 101011
     else if (op == 43) {
         controls->MemWrite = 1;
@@ -146,26 +146,26 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         controls->RegWrite = 0;
         controls->Jump = 0;
         controls->Branch = 0;
+        controls->RegDst = 0;
         //0 in binary for addition
         controls->ALUOp = 0;
-        // Don't care values
-        controls->RegDst = 2;
+        //Dont care
         controls->MemtoReg = 2;
-    }
-    //if the op value is for lui 0000 1111
+    } 
+     //if the op value is for lui 0000 1111
     else if (op == 15) {
         controls->RegWrite = 1;
         controls->ALUSrc = 1;
         //disable following for lui
         controls->MemRead = 0;
         controls->MemWrite = 0;
-        controls->ALUSrc = 0;
+        controls->RegDst = 0;
         controls->Branch = 0;
         controls->Jump = 0;
         controls->MemtoReg = 0;
-        //6 binary value is 110 used for shift left
+      //6 binary value is 110 used for shift left
         controls->ALUOp = 6;
-    }
+    } 
     //if op value is beq 0000 0100
     else if (op == 4) {
         controls->Branch = 1;
@@ -174,30 +174,30 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         controls->RegWrite = 0;
         controls->ALUSrc = 0;
         controls->Jump = 0;
+        controls->RegDst = 0;
         //1 in binary for subtraction
         controls->ALUOp = 1;
-        // Don't care values
-        controls->RegDst = 0;
-        controls->MemtoReg = 0;
-    }
-     //if op value is slti 0000 1010
+        //Dont care
+        controls->MemtoReg = 2;
+    } 
+    //if op value is slti 0000 1010
     else if (op == 10) {
         controls->RegWrite = 1;
         controls->ALUSrc = 1;
-         //disable for slti
+        //disable for slti
         controls->MemRead = 0;
         controls->MemWrite = 0;
+        controls->RegDst = 0;
         controls->Jump = 0;
         controls->Branch = 0;
         controls->MemtoReg = 0;
-        controls->RegDst = 0;
-         //2 binary value is 010 used for set less than
+        //2 binary value is 010 used for set less than
         controls->ALUOp = 2;
-    }
+    } 
     //if op value is sltiu 0000 1011
     else if (op == 11) {
-        controls->RegWrite = 1;
         controls->ALUSrc = 1;
+        controls->RegWrite = 1;
          //disable for sltiu
         controls->MemRead = 0;
         controls->MemWrite = 0;
@@ -205,26 +205,30 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         controls->Jump = 0;
         controls->Branch = 0;
         controls->MemtoReg = 0;
-        //3 binary value is 011 used for set less than unsighed
+        //3 binary value is 011 used for set less than unsignhed
         controls->ALUOp = 3;
-    }
+    } 
     // J-Type Instructions
     else if (op == 2) {
         controls->Jump = 1;
-        controls->ALUSrc = 1;
-         //disable for j
+        //disable for j
+        controls->Branch = 0;
         controls->MemRead = 0;
         controls->MemWrite = 0;
-        controls->RegWrite = 0;
-    }
-    //if an illegal instruction is encountered halt
+        controls->ALUOp = 0;
+
+        controls->MemtoReg = 2;
+        controls->ALUSrc = 2;
+        controls->RegWrite = 2;
+        controls->RegDst = 2;
+    } 
+   //if an illegal instruction is encountered halt
     else {
         return 1;
     }
     //if one of the conditions was read then no halt needed
     return 0;
 }
-
 // Adam Essaydi
 /* Read Register - reads the registers addressed by r1 and r2
    * writes the read values to data1 and data2  */
