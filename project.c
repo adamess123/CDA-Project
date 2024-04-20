@@ -1,23 +1,28 @@
+/* Group members:
+    Naziat Chowdhury
+   Grace Rudie
+   Adam Essaydi
+   
+   CDA3103 Project */ 
+
 #include "spimcore.h"
 
-// Naziat C.
-/* ALU */
-/* 10 Points */
+// Naziat Chowdhury
+/* ALU - simulates the operations of an ALU 
+    * implements operations based on A and B parameters in accordance to ALU control in the given table
+    * outputs result to ALUresult */
 void ALU(unsigned A,unsigned B,char ALUOp,unsigned *ALUresult,char *Zero)
-{
+{   // switch-case handles operations based on ALUOp
     switch(ALUOp) {
-        // A + B case
-        case 0:
+        case 0: // A + B
             *ALUresult = A + B;
             break;
 
-        // A - B case
-        case 1:
+        case 1: // A - B 
             *ALUresult = A - B;
             break;
 
-        // signed
-        case 2:
+        case 2: // Compares signed A and B return 1 if A < B, else 0
             if ((signed) A < (signed) B) {
                 *ALUresult = 1;
             }
@@ -26,8 +31,7 @@ void ALU(unsigned A,unsigned B,char ALUOp,unsigned *ALUresult,char *Zero)
             }
             break;
 
-        // Z = 1 if A less than B, otherwise z = 0 - A and B unsigned int
-        case 3:
+        case 3: // Compares unsigned A and B return 1 if A < B, else 0
             if (A < B) {
                 *ALUresult = 1;
             }
@@ -36,27 +40,23 @@ void ALU(unsigned A,unsigned B,char ALUOp,unsigned *ALUresult,char *Zero)
             }
             break;
 
-        // Z and B case
-        case 4:
-            *ALUresult = A & B;
+        case 4: // A and B
+            *ALUresult = A & B; 
             break;
 
-        // Z or B case
-        case 5:
+        case 5: // A or B
             *ALUresult = A | B;
             break;
 
-        // Z is shifted left 16 bits
-        case 6:
+        case 6: // B is shifted left 16 bits
             *ALUresult = B << 16;
             break;
 
-        // Z = not a
-        case 7:
+        case 7: // Not A
             *ALUresult = ~A;
             break;
     }
-    // if alu result = 0 set to 1, otherwise 0
+    // Checks if ALU result = 0 set to 1, otherwise 0
     if (*ALUresult == 0) {
         *Zero = 1;
     } 
@@ -65,12 +65,12 @@ void ALU(unsigned A,unsigned B,char ALUOp,unsigned *ALUresult,char *Zero)
     }
 }
 
-/* instruction fetch */
-/* 10 Points */
+/* Instruction fetch - Fetches the instruction addresses by PC from mem, writes to instruction
+    * halt condition: returns 1  */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
     if (PC % 4 == 0) {
-        *instruction = Mem[PC >> 2];
+        *instruction = Mem[PC >> 2]; // Right shift PC 2 bits, divides by 4 and use as index
         return 0;
     }
 
@@ -79,14 +79,10 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 }
 
 
-/* instruction partition */
-/* 10 Points */
+/* Instruction partition -  Parititons instruction into parts - each field extracted based on bit positions */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
     *op = instruction >> 26;
-    // r1 - instruction 31 - 26
-    // r2 instruction 20-16
-    // r3 instruction 15-11
     *r1 = (instruction >> 21) & 0x1F;
     *r2 = (instruction >> 16) & 0x1F;
     *r3 = (instruction >> 11 )& 0x1F;
@@ -96,11 +92,9 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
     *offset = instruction & 0xFFFF;
 }
 
-
-
-/* instruction decode */
-/* 15 Points */
-//Grace Rudie
+// Grace Rudie
+/* Instruction decode - decodes the instruction using the opcode
+   * Assigns values of the control signals to the variables in controls struct */
 int instruction_decode(unsigned op, struct_controls *controls) {
     if (op == 0) {
         //enable or indicate selected path with 1
@@ -233,9 +227,9 @@ int instruction_decode(unsigned op, struct_controls *controls) {
     return 0;
 }
 
-/* Read Register */
-/* 5 Points */
 // Adam Essaydi
+/* Read Register - reads the registers addressed by r1 and r2
+   * writes the read values to data1 and data2  */
 void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigned *data2)
 {
     // Read the registers r1 and r2 from Reg, then writes the read values to data1 and data2
@@ -243,10 +237,8 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
     *data2 = Reg[r2];
 }
 
-
-/* Sign Extend */
-/* 10 Points */
-//Grace Rudie
+// Grace Rudie
+/* Sign Extend - Assigns the sign-extended value of offset to extended_value */
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
     //offest is a 16-bits therefore to check most significant bit use right shift to see if it is one(meaning negative)
@@ -259,9 +251,8 @@ void sign_extend(unsigned offset,unsigned *extended_value)
     }
 }
 
-/* ALU operations */
-/* 10 Points */
 // Grace Rudie
+/* ALU operations - Applies ALU operations on data1, data2, extend_value */
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero){
     //determine based on ALUSrc if data2 or extend_value should be used
     if(ALUSrc == 1)
@@ -315,9 +306,8 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
     return 0;
 }
 
-/* Read / Write Memory */
-/* 10 Points */
 // Adam Essaydi
+/* Read / Write Memory - Uses memwrite/memread value to know if a memory write, memory read or neither is happening  */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
     // Bad address will stop the function
@@ -335,10 +325,8 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
     return 0;
 }
 
-
-/* Write Register */
-/* 10 Points */
 // Adam Essaydi
+/* Write Register - Writes the data to a register addressed by r2 or r3 */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
     if (RegWrite == 1) {
@@ -362,9 +350,8 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 
 }
 
-/* PC update */
-/* 10 Points */
 // Adam Essaydi
+/* PC update - Function to update program counter */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
 {
     // increment the PC by 4 each time update is ran
