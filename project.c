@@ -229,6 +229,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
     //if one of the conditions was read then no halt needed
     return 0;
 }
+
 // Adam Essaydi
 /* Read Register - reads the registers addressed by r1 and r2
    * writes the read values to data1 and data2  */
@@ -300,7 +301,6 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
             return 1;
 
     }
-    //for non R-Type instructions
 
     //Now to perform the ALU operations
     ALU(data1, data2, ALUOp, ALUresult, Zero);
